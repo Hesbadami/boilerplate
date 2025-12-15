@@ -3,10 +3,12 @@ import signal
 
 from common.nats_server import nc
 from common.scheduler import sch
+from common.fastapi_server import fastapi_server
 
 import handlers
 import schedules
 import workflows
+import endpoints
 
 import anyio
 from anyio import run, Event, open_signal_receiver, create_task_group
@@ -25,13 +27,16 @@ class Service:
             async with create_task_group() as tg:
                 # Start NATS server in task group
                 tg.start_soon(nc.serve, tg, self.shutdown_event)
+                
+                # Start FastAPI server
+                tg.start_soon(fastapi_server.serve, tg, self.shutdown_event)
             
+                # Start scheduler
                 if not sch.running:
                     sch.start()
                 logger.info("APScheduler Service started successfully")
                 
                 await self.shutdown_event.wait()
-
                 tg.cancel_scope.cancel()
                 
         except Exception as e:

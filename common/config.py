@@ -24,6 +24,11 @@ NATS_CFG = {
     'max_reconnect_attempts': 10
 }
 
+FASTAPI_CFG = {
+    'host': os.environ.get("FASTAPI_HOST", "127.0.0.1"),
+    'port': os.environ.get("FASTAPI_PORT", 8000)
+}
+
 LOGGING_CFG = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -68,6 +73,15 @@ LOGGING_CFG = {
             'maxBytes': 10*1024*1024,
             'backupCount': 5,
         },
+        'fastapi_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.environ.get("LOG_PATH")+"fastapi.log",
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+            'maxBytes': 10*1024*1024,
+            'backupCount': 5,
+        },
         'scheduler_file': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -100,6 +114,11 @@ LOGGING_CFG = {
         },
         'nats': {
             'handlers': ['console', 'nats_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'fastapi': {
+            'handlers': ['console', 'fastapi_file'],
             'level': 'INFO',
             'propagate': False,
         },
